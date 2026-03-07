@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Eres un Bicho? - Club de Bichos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bicho-purple: #9d4edd;
+            --bicho-pink: #f72585;
+            --bicho-yellow: #fee440;
+            --bicho-teal: #00f5d4;
+            --cave-black: #0d0806;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--cave-black);
+            /* Fondo de Piedras Gigantes con Alto Contraste estilo bunker */
+            background-image: 
+                linear-gradient(rgba(13, 8, 6, 0.85), rgba(13, 8, 6, 0.95)),
+                url('https://www.transparenttextures.com/patterns/rocky-wall.png');
+            background-size: 1200px;
+            background-attachment: fixed;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Botones 3D Estilo Gaming */
+        .btn-3d {
+            @apply relative transition-all duration-100 font-black uppercase tracking-widest text-center shadow-lg;
+            border-radius: 20px 50px 20px 50px;
+            border-bottom: 8px solid rgba(0,0,0,0.4);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .btn-3d:active {
+            transform: translateY(6px);
+            border-bottom-width: 2px;
+        }
+
+        .btn-white { background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%); color: #0f172a; }
+        .btn-teal { background: linear-gradient(135deg, var(--bicho-teal) 0%, #00c4a7 100%); color: #000; }
+        .btn-purple { background: linear-gradient(135deg, var(--bicho-purple) 0%, #7b2cbf 100%); color: #fff; }
+        .btn-bunker { background: linear-gradient(135deg, var(--bicho-yellow) 0%, #eab308 100%); color: #000; }
+
+        .glass-card {
+            background: rgba(15, 10, 8, 0.9);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 55px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+        }
+
+        /* Animaciones de Bichos Decorativos */
+        .bug { position: fixed; z-index: 0; pointer-events: none; }
+        
+        @keyframes moth-pro {
+            0%, 100% { transform: translate(0,0) rotate(0) scale(1.5); filter: drop-shadow(0 0 20px var(--bicho-pink)); }
+            25% { transform: translate(180px, -60px) rotate(25deg) scale(1.7); }
+            50% { transform: translate(60px, -250px) rotate(-15deg) scale(1.4); }
+            75% { transform: translate(-120px, -120px) rotate(30deg) scale(1.8); }
+        }
+        .moth-pro { top: 10%; right: 8%; animation: moth-pro 9s linear infinite; font-size: 90px; }
+
+        @keyframes spider-silk {
+            0%, 100% { transform: translateY(0); }
+            45% { transform: translateY(350px); }
+            55% { transform: translateY(350px) scale(1.3); filter: drop-shadow(0 0 30px var(--bicho-purple)); }
+        }
+        .spider-pro { top: -80px; left: 10%; animation: spider-silk 14s ease-in-out infinite; }
+
+        @keyframes inchworm {
+            0% { transform: translateX(-200px) scaleX(1); }
+            10% { transform: translateX(10vw) scaleX(0.7) scaleY(1.4); }
+            20% { transform: translateX(25vw) scaleX(1.3) scaleY(0.7); }
+            100% { transform: translateX(110vw) scaleX(1); }
+        }
+        .worm-pro { bottom: 60px; animation: inchworm 22s ease-in-out infinite; font-size: 80px; }
+
+        /* Bicho Héroe Final */
+        @keyframes hero-impact {
+            0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 30px var(--bicho-teal)); }
+            50% { transform: scale(1.3) translateY(-30px); filter: drop-shadow(0 0 60px var(--bicho-pink)); }
+        }
+        .hero-bicho-anim { animation: hero-impact 4s ease-in-out infinite; display: inline-block; font-size: 150px; }
+
+        /* Gráficas */
+        .venn-circle { transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1); }
+        .diverge-track { height: 20px; background: rgba(255,255,255,0.03); border-radius: 40px; position: relative; border: 1px solid rgba(255,255,255,0.05); }
+        .diverge-fill { height: 100%; position: absolute; left: 0%; border-radius: 40px; transition: all 1.8s cubic-bezier(0.19, 1, 0.22, 1); }
+
+        /* Botón Búnker Persistente */
+        .persistent-bunker {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .share-modal { background: rgba(0,0,0,0.97); backdrop-filter: blur(25px); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Animaciones Decorativas -->
+    <div class="bug moth-pro">🦋</div>
+    <div class="bug spider-pro">
+        <div class="w-[3px] h-[500px] bg-white/10 mx-auto shadow-[0_0_10px_rgba(255,255,255,0.1)]"></div>
+        <div class="text-7xl">🕷️</div>
+    </div>
+    <div class="bug worm-pro">🐛</div>
+
+    <!-- Botón Búnker Persistente -->
+    <a href="http://clubdebichos.xidito.com/" target="_blank" class="persistent-bunker btn-3d btn-bunker px-6 py-4 flex items-center space-x-3 text-sm">
+        <span>🏠 Ir a nuestro búnker</span>
+    </a>
+
+    <!-- Header -->
+    <header class="w-full max-w-lg pt-12 pb-10 flex flex-col items-center z-10 text-center">
+        <div class="relative group">
+            <div class="absolute inset-0 bg-[var(--bicho-yellow)] blur-[80px] opacity-25 group-hover:opacity-40 transition-opacity rounded-full"></div>
+            <img src="http://clubdebichos.xidito.com/logo.png" alt="Club de Bichos Logo" class="relative w-48 h-48 md:w-60 md:h-60 object-cover rounded-[70px] border-8 border-white/5 shadow-2xl transition-all hover:rotate-3 hover:scale-105 duration-500">
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black italic mt-10 tracking-tight drop-shadow-lg">¿También eres un <span class="text-[var(--bicho-teal)] underline decoration-wavy">Bicho</span>?</h1>
+        <p class="text-[var(--bicho-yellow)] font-bold text-xs mt-4 uppercase tracking-[0.6em] opacity-80">Expedición Neurodivergente 🕯️</p>
+    </header>
+
+    <main class="w-full max-w-lg z-10 flex-grow pb-32">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="glass-card p-12 text-center">
+            <h2 class="text-3xl font-black mb-8 text-white italic">¡Qué onda, Bicho! 🕸️</h2>
+            <p class="text-slate-300 mb-12 text-lg md:text-xl leading-relaxed font-semibold italic">
+                Pásale a nuestra cueva. Aquí no juzgamos, solo nos conocemos. Vamos a ver cómo está cableada esa cabecita tuya. ¡Dale play!
+            </p>
+            <button onclick="quiz.start()" class="btn-3d btn-white w-full py-7 text-2xl">
+                ¡Entrar a la Cueva! 🐜
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden glass-card p-10 border-t-[14px] border-[var(--bicho-pink)]">
+            <div class="mb-12">
+                <div class="flex justify-between items-end mb-5">
+                    <span id="cat-tag" class="text-[11px] font-black uppercase bg-white/5 px-6 py-2.5 rounded-full text-[var(--bicho-yellow)] tracking-widest border border-white/10 italic">Cargando...</span>
+                    <span id="prog-num" class="text-sm font-bold opacity-30">1/35</span>
+                </div>
+                <div class="w-full bg-white/5 h-6 rounded-full p-2 border border-white/5 shadow-inner">
+                    <div id="prog-bar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[var(--bicho-pink)] to-[var(--bicho-purple)] shadow-[0_0_25px_rgba(247,37,133,0.7)]" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="min-h-[200px] flex items-center mb-12">
+                <h3 id="q-text" class="text-2xl md:text-4xl font-black text-white leading-tight">...</h3>
+            </div>
+
+            <div class="space-y-5">
+                <button onclick="quiz.answer(1)" class="btn-3d bg-white/5 w-full p-6 text-left flex items-center border border-white/5 hover:border-[var(--bicho-teal)]">
+                    <span class="w-14 h-14 rounded-2xl bg-white/5 mr-6 flex items-center justify-center text-base">1</span> Nunca me pasa
+                </button>
+                <button onclick="quiz.answer(2)" class="btn-3d bg-white/5 w-full p-6 text-left flex items-center border border-white/5 hover:border-[var(--bicho-teal)]">
+                    <span class="w-14 h-14 rounded-2xl bg-white/5 mr-6 flex items-center justify-center text-base">2</span> Casi nunca
+                </button>
+                <button onclick="quiz.answer(3)" class="btn-3d bg-white/5 w-full p-6 text-left flex items-center border border-white/5 hover:border-[var(--bicho-teal)]">
+                    <span class="w-14 h-14 rounded-2xl bg-white/5 mr-6 flex items-center justify-center text-base">3</span> A veces
+                </button>
+                <button onclick="quiz.answer(4)" class="btn-3d bg-white/5 w-full p-6 text-left flex items-center border border-white/5 hover:border-[var(--bicho-teal)]">
+                    <span class="w-14 h-14 rounded-2xl bg-white/5 mr-6 flex items-center justify-center text-base">4</span> Seguido
+                </button>
+                <button onclick="quiz.answer(5)" class="btn-3d bg-white/5 w-full p-6 text-left flex items-center border border-white/5 hover:border-[var(--bicho-teal)]">
+                    <span class="w-14 h-14 rounded-2xl bg-white/5 mr-6 flex items-center justify-center text-base">5</span> ¡Yo mero!
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden">
+            <div id="capture-area" class="glass-card p-10 mb-10 text-center bg-[#150a06] border-4 border-white/5">
+                
+                <!-- Bicho Héroe Centrado -->
+                <div class="mb-14">
+                    <div id="hero-emoji" class="hero-bicho-anim mb-8">🐛</div>
+                    <div id="res-badge" class="block w-fit mx-auto px-10 py-4 rounded-full text-sm font-black uppercase tracking-[0.4em] shadow-2xl mb-8">...</div>
+                    <div id="res-percent" class="text-8xl font-black text-white drop-shadow-[0_0_40px_rgba(255,255,255,0.4)]">0%</div>
+                </div>
+
+                <!-- Gráfica Venn -->
+                <div class="flex justify-center mb-20 h-80">
+                    <svg viewBox="0 0 240 240" class="w-80 h-80 drop-shadow-2xl">
+                        <circle id="venn-i" cx="120" cy="80" r="75" fill="#9d4edd" fill-opacity="0.6" class="venn-circle" />
+                        <circle id="venn-h" cx="75" cy="155" r="75" fill="#f72585" fill-opacity="0.6" class="venn-circle" />
+                        <circle id="venn-e" cx="165" cy="155" r="75" fill="#00f5d4" fill-opacity="0.6" class="venn-circle" />
+                        <text x="120" y="55" fill="white" font-size="14" font-weight="900" text-anchor="middle" class="drop-shadow-lg">ENFOQUE</text>
+                        <text x="40" y="195" fill="white" font-size="14" font-weight="900" text-anchor="middle" class="drop-shadow-lg">ENERGÍA</text>
+                        <text x="200" y="195" fill="white" font-size="14" font-weight="900" text-anchor="middle" class="drop-shadow-lg">CONTROL</text>
+                    </svg>
+                </div>
+
+                <!-- Gráfica Divergente -->
+                <div class="space-y-12 mb-20 text-left">
+                    <h4 class="text-[var(--bicho-yellow)] font-black text-sm uppercase tracking-widest text-center italic border-b border-white/5 pb-4">Niveles de Intensidad</h4>
+                    <div id="diverging-bars" class="space-y-10">
+                        <!-- JS fill -->
+                    </div>
+                </div>
+
+                <!-- Análisis -->
+                <div class="bg-black/50 p-12 rounded-[60px] border border-white/5">
+                    <h3 id="res-title" class="text-3xl font-black text-[var(--bicho-teal)] italic mb-8">...</h3>
+                    <div id="res-friendly" class="text-lg md:text-xl text-slate-200 leading-relaxed mb-12 italic">...</div>
+                    <div class="text-left bg-white/5 p-10 rounded-[45px] border border-white/10 shadow-inner">
+                        <h4 class="text-[var(--bicho-pink)] font-black uppercase text-xs mb-5 tracking-widest">Análisis del Bunker Bicho:</h4>
+                        <div id="res-pro" class="text-base text-slate-400 leading-relaxed space-y-5">...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6">
+                <button onclick="quiz.saveImg()" class="btn-3d btn-white py-7 text-2xl">
+                    💾 Descargar mi Reporte
+                </button>
+                <button onclick="ui.toggleShare(true)" class="btn-3d btn-purple py-7 text-2xl">
+                    📢 Compartir con la Manada
+                </button>
+            </div>
+            <button onclick="location.reload()" class="w-full mt-12 text-slate-500 font-bold uppercase text-sm tracking-[0.3em] hover:text-white transition-colors">Volver a Empezar</button>
+        </div>
+    </main>
+
+    <!-- Footer Permanente -->
+    <footer class="w-full max-w-lg mt-12 pb-32 z-20">
+        <div class="glass-card p-12 border-t-[12px] border-[var(--bicho-teal)] text-center">
+            
+            <!-- Redes Sociales Primero -->
+            <p class="text-lg font-bold text-slate-300 mb-10 italic">¿Te late el desorden? ¡Suscríbete!</p>
+            <div class="flex justify-center space-x-12 mb-14">
+                <a href="https://www.youtube.com/@clubdebichos" target="_blank" class="flex flex-col items-center group">
+                    <div class="w-24 h-24 bg-[#ff0000] rounded-[40px] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform shadow-red-900/40">
+                        <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </div>
+                    <span class="text-xs font-black mt-4 text-red-500 uppercase tracking-widest">YouTube</span>
+                </a>
+                <a href="https://www.facebook.com/ClubdeBichosPodcast" target="_blank" class="flex flex-col items-center group">
+                    <div class="w-24 h-24 bg-[#1877f2] rounded-[40px] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform shadow-blue-900/40">
+                        <svg class="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </div>
+                    <span class="text-xs font-black mt-4 text-blue-500 uppercase tracking-widest">Facebook</span>
+                </a>
+            </div>
+
+            <!-- Letrero Anti-Rabo -->
+            <div class="pt-12 border-t border-white/5 space-y-8">
+                <p class="text-lg text-[var(--bicho-yellow)] font-black uppercase tracking-[0.3em] italic">¡Esto no se sacó del rabo y aquí te decimos de donde lo sacamos!</p>
+                <button onclick="ui.toggleModal(true)" class="btn-3d btn-teal py-5 px-14 text-sm">
+                    🔍 VER REFERENCIAS CIENTÍFICAS
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Referencias -->
+    <div id="ref-modal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4 share-modal">
+        <div class="glass-card max-w-lg w-full p-12 border-t-[14px] border-[var(--bicho-teal)] overflow-y-auto max-h-[85vh]">
+            <h4 class="text-3xl font-black mb-10 flex justify-between italic text-white">
+                Cimientos de la Cueva 🧬
+                <button onclick="ui.toggleModal(false)" class="text-white/20 hover:text-white transition-colors text-4xl">&times;</button>
+            </h4>
+            <div class="text-base text-slate-300 space-y-10 leading-relaxed italic">
+                <div class="bg-white/5 p-10 rounded-[50px] border border-white/10 shadow-inner">
+                    <p class="font-black text-[var(--bicho-teal)] mb-5 uppercase text-xs tracking-widest">¿Por qué confiar?</p>
+                    "Este mapeo no es una ocurrencia de pasillo. Construimos cada pregunta basándonos en los 18 ítems del **DSM-5**, la escala **ASRS v1.1** validada por la Organización Mundial de la Salud (OMS) y la teoría del Dr. Thomas Brown sobre la desregulación ejecutiva en Yale. Lo tradujimos a lenguaje bicho, pero el motor es ciencia pura."
+                </div>
+                
+                <div class="space-y-10">
+                    <div class="border-l-6 border-[var(--bicho-purple)] pl-6">
+                        <strong class="text-white block font-black uppercase text-xs mb-3">DSM-5 (APA)</strong>
+                        El Manual Diagnóstico y Estadístico de Trastornos Mentales. La referencia mundial para neurodiversidad.
+                        <a href="https://www.psychiatry.org/psychiatrists/practice/dsm" target="_blank" class="text-[var(--bicho-teal)] block mt-3 underline">Portal Oficial DSM-5</a>
+                    </div>
+                    <div class="border-l-6 border-[var(--bicho-pink)] pl-6">
+                        <strong class="text-white block font-black uppercase text-xs mb-3">ASRS v1.1 (OMS)</strong>
+                        Escala de Autoinforme del TDAH en Adultos. Es el test estandarizado que usan los clínicos para el cribado inicial.
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/15939839/" target="_blank" class="text-[var(--bicho-teal)] block mt-3 underline">Estudio de Validación OMS</a>
+                    </div>
+                    <div class="border-l-6 border-[var(--bicho-yellow)] pl-6">
+                        <strong class="text-white block font-black uppercase text-xs mb-3">Modelo Brown (Yale)</strong>
+                        Modelo de funciones ejecutivas que explica el TDAH como un 'retraso de encendido' de la dopamina.
+                        <a href="https://www.drthomasbrown.com/brown-model-adhd-ef/" target="_blank" class="text-[var(--bicho-teal)] block mt-3 underline">Teoría de la Ejecución</a>
+                    </div>
+                </div>
+
+                <p class="text-[13px] text-red-500 font-bold bg-red-500/5 p-8 rounded-[40px] border border-red-500/20">
+                    BICHO RECUERDA: Este reporte es orientativo. Si te sientes muy bicho, ve con un psiquiatra o psicólogo que sepa de adultos. ¡Tu mente es tu búnker más valioso!
+                </p>
+
+                <button onclick="ui.toggleModal(false)" class="btn-3d btn-teal w-full py-6 text-base">
+                    ¡ENTENDIDO, CIENCIA BICHO!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Compartir -->
+    <div id="share-modal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4 share-modal">
+        <div class="glass-card max-w-sm w-full p-12 text-center border-t-[14px] border-[var(--bicho-purple)]">
+            <h4 class="text-2xl font-black mb-10 italic">📢 Pásalo al Búnker</h4>
+            <div class="grid grid-cols-1 gap-6">
+                <button onclick="quiz.shareTo('wa')" class="btn-3d bg-[#25D366] text-white py-5 flex items-center justify-center">
+                    <span class="mr-4 text-2xl">💬</span> WhatsApp
+                </button>
+                <button onclick="quiz.shareTo('fb')" class="btn-3d bg-[#1877f2] text-white py-5 flex items-center justify-center">
+                    <span class="mr-4 text-2xl">🔵</span> Facebook
+                </button>
+                <button onclick="quiz.shareTo('tw')" class="btn-3d bg-[#000000] text-white py-5 flex items-center justify-center">
+                    <span class="mr-4 text-2xl">𝕏</span> Twitter
+                </button>
+                <button onclick="ui.toggleShare(false)" class="mt-8 text-slate-500 font-bold uppercase text-xs tracking-[0.4em]">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CATS = { I: "Enfoque / Inatención", H: "Energía / Impulsividad", E: "Control / Ejecución" };
+        const questions = [
+            { t: "¿Sientes que cometes errores tontos porque tu cabeza andaba en otro planeta?", c: CATS.I },
+            { t: "¿Concentrarte en algo aburrido te cansa más que cargar piedras?", c: CATS.I },
+            { t: "¿Te han dicho que pareces no escuchar aunque te hablen de frente?", c: CATS.I },
+            { t: "¿Empiezas proyectos con toda la pila pero los dejas al 90%?", c: CATS.I },
+            { t: "¿Tu sistema de organización es un caos total o demasiado rígido?", c: CATS.I },
+            { t: "¿Huyes de las tareas que sabes que te van a pedir pensar mucho rato?", c: CATS.I },
+            { t: "¿Pierdes las llaves o el cel seguido? ¡Es el pan de cada día!", c: CATS.I },
+            { t: "¿Cualquier ruidito o mosca te saca de lo que estabas haciendo?", c: CATS.I },
+            { t: "¿Olvidas citas o mandados que juraste no olvidar?", c: CATS.I },
+            
+            { t: "¿Necesitas estar moviendo un pie o las manos para pensar a gusto?", c: CATS.H },
+            { t: "¿Quedarte sentado en una cena larga te genera hormigueo en el cuerpo?", c: CATS.H },
+            { t: "¿Sientes que tienes un motorcito adentro que nunca se apaga?", c: CATS.H },
+            { t: "¿Relajarte de verdad, sin hacer NADA, te cuesta un mundo?", c: CATS.H },
+            { t: "¿Sientes que siempre vas con prisa, incluso cuando no hay prisa?", c: CATS.H },
+            { t: "¿Sueles hablar tanto que a veces no dejas participar a los demás?", c: CATS.H },
+            { t: "¿Sueltas la respuesta antes de que terminen de preguntarte?", c: CATS.H },
+            { t: "¿Hacer fila o esperar turnos te genera una desesperación física?", c: CATS.H },
+            { t: "¿Interrumpes a los demás sin querer porque se te ocurrió algo épico?", c: CATS.H },
+
+            { t: "¿Tu mente se siente como un navegador con 50 pestañas abiertas?", c: CATS.E },
+            { t: "¿Pierdes la noción del tiempo? (Ceguera temporal bicho)", c: CATS.E },
+            { t: "¿Te cuesta decidir qué es lo más importante de tu día hoy?", c: CATS.E },
+            { t: "¿Si algo no te da recompensa rápida, tu cerebro dice: 'Luego'?", c: CATS.E },
+            { t: "¿Haces compras o cambios de planes locos por puro impulso?", c: CATS.E },
+            { t: "¿Te frustras muy rápido si las cosas no van a tu ritmo?", c: CATS.E },
+            { t: "¿Tu cabeza nunca se calla, ni para intentar dormir?", c: CATS.E },
+            { t: "¿Dejas lo importante para el final, cuando el pánico te hace actuar?", c: CATS.E },
+            { t: "¿Tus emociones son intensas: de la alegría al bajón muy rápido?", c: CATS.E },
+            { t: "¿Si te dan más de 3 instrucciones, tu cerebro simplemente se bloquea?", c: CATS.E },
+            { t: "¿Sientes que vivir te cuesta el doble de esfuerzo que al resto?", c: CATS.E },
+            { t: "¿Tienes rachas de 'hiperfoco' donde se te olvida hasta comer?", c: CATS.E },
+            { t: "¿Tu desorden externo es una copia de tu desorden mental?", c: CATS.E },
+            { t: "¿Eres muy sensible a ruidos, luces o etiquetas de ropa?", c: CATS.E },
+            { t: "¿Te abrumas fácil con las tareas pequeñitas del día?", c: CATS.E },
+            { t: "¿Sientes que tienes un potencial enorme pero algo te tiene frenado?", c: CATS.E },
+            { t: "¿Buscas emociones fuertes para sentirte realmente 'despierto'?", c: CATS.E }
+        ];
+
+        const ui = {
+            toggleModal(show) { document.getElementById('ref-modal').style.display = show ? 'flex' : 'none'; },
+            toggleShare(show) { document.getElementById('share-modal').style.display = show ? 'flex' : 'none'; }
+        };
+
+        const quiz = {
+            idx: 0, ans: [],
+            start() {
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                this.show();
+            },
+            show() {
+                const q = questions[this.idx];
+                document.getElementById('q-text').innerText = q.t;
+                document.getElementById('cat-tag').innerText = q.c;
+                document.getElementById('prog-num').innerText = `${this.idx+1}/35`;
+                document.getElementById('prog-bar').style.width = Math.round((this.idx / questions.length) * 100) + '%';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+            answer(v) {
+                this.ans.push({ c: questions[this.idx].c, v });
+                if (this.idx < questions.length - 1) { this.idx++; this.show(); }
+                else { this.results(); }
+            },
+            results() {
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                
+                const stats = {};
+                Object.values(CATS).forEach(c => {
+                    const group = this.ans.filter(a => a.c === c);
+                    const val = Math.round(((group.reduce((a,b)=>a+b.v, 0) - group.length) / (group.length*4)) * 100);
+                    stats[c] = val || 1;
+                });
+
+                const total = Math.round(((this.ans.reduce((a,b)=>a+b.v,0) - 35) / 140) * 100);
+                document.getElementById('res-percent').innerText = total + '%';
+
+                document.getElementById('venn-i').setAttribute('fill-opacity', 0.2 + (stats[CATS.I]/100)*0.6);
+                document.getElementById('venn-h').setAttribute('fill-opacity', 0.2 + (stats[CATS.H]/100)*0.6);
+                document.getElementById('venn-e').setAttribute('fill-opacity', 0.2 + (stats[CATS.E]/100)*0.6);
+
+                const barsContainer = document.getElementById('diverging-bars');
+                barsContainer.innerHTML = "";
+                const colors = ['var(--bicho-purple)', 'var(--bicho-pink)', 'var(--bicho-teal)'];
+                Object.entries(stats).forEach(([c, v], i) => {
+                    barsContainer.innerHTML += `
+                        <div>
+                            <div class="flex justify-between text-[12px] font-black uppercase mb-3">
+                                <span>${c}</span>
+                                <span style="color:${colors[i]}">${v}%</span>
+                            </div>
+                            <div class="diverge-track">
+                                <div class="diverge-fill shadow-[0_0_25px]" style="width:0%; background:${colors[i]}" data-w="${v}"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                setTimeout(() => {
+                    document.querySelectorAll('.diverge-fill').forEach(f => f.style.width = f.dataset.w + '%');
+                }, 100);
+
+                const emoji = document.getElementById('hero-emoji');
+                const badge = document.getElementById('res-badge');
+                const title = document.getElementById('res-title');
+                const friendly = document.getElementById('res-friendly');
+                const pro = document.getElementById('res-pro');
+                const dominant = Object.entries(stats).sort((a,b)=>b[1]-a[1])[0][0];
+
+                if (total >= 70) {
+                    emoji.innerText = "🦋";
+                    badge.innerText = "🏆 Bicho Nivel Leyenda";
+                    badge.style.background = 'var(--bicho-pink)';
+                    title.innerText = "¡Traes un motor de nave espacial!";
+                    friendly.innerHTML = "<p>Tu cabecita funciona a un ritmo que el mundo normotípico no entiende. Eres intenso, creativo y capaz de ver conexiones donde otros ven nada. ¡Eres un bicho de pura cepa!</p>";
+                    pro.innerHTML = `<p><strong>Análisis Búnker:</strong> El perfil muestra una correlación robusta con el TDAH combinado. Tu área dominante es <strong>${dominant}</strong>. Tu sistema de recompensas está diseñado para la novedad extrema. No es falta de disciplina, es un cerebro que necesita más 'combustible' sensorial que el resto.</p>`;
+                } else if (total >= 40) {
+                    emoji.innerText = "🐛";
+                    badge.innerText = "🐛 Bicho en Metamorfosis";
+                    badge.style.background = 'var(--bicho-purple)';
+                    title.innerText = "¡Vas descubriendo tu luz!";
+                    friendly.innerHTML = "<p>Tienes rasgos de bicho muy claros. A veces tu mente es un bosque encantado y otras un laberinto, pero conocerte es tu mejor herramienta para no perderte.</p>";
+                    pro.innerHTML = `<p><strong>Análisis Búnker:</strong> Presentas rasgos moderados de neurodivergencia. Tu puntuación en <strong>${dominant}</strong> indica que el andamiaje externo (rutinas visuales, sistemas de apoyo en el búnker) es crucial para no quemarte en tareas repetitivas.</p>`;
+                } else {
+                    emoji.innerText = "🦗";
+                    badge.innerText = "🦗 Grillo Relajado";
+                    badge.style.background = 'var(--bicho-teal)';
+                    title.innerText = "¡Tu caverna está en paz!";
+                    friendly.innerHTML = "<p>Parece que tu cerebro va a un ritmo más estándar. Eso no quita que seas bienvenido en el búnker, solo que tu motor no tiene ese 'turbo' TDAH de nacimiento.</p>";
+                    pro.innerHTML = `<p><strong>Análisis Búnker:</strong> Los resultados están dentro del rango normativo. Si sientes agobio, podría ser fatiga mental o estrés por el entorno. ¡Disfruta la señal clara de tu radio, Bicho!</p>`;
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+            saveImg() {
+                const el = document.getElementById('capture-area');
+                html2canvas(el, { backgroundColor: '#120907', scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'Mi_Perfil_Bicho_Club.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                });
+            },
+            shareTo(platform) {
+                const text = "He descubierto qué tipo de 'Bicho' soy en el Club de Bichos. ¡Haz tu mapeo tú también!";
+                const url = window.location.href;
+                let link = "";
+                if (platform === 'wa') link = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`;
+                if (platform === 'fb') link = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                if (platform === 'tw') link = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+                window.open(link, '_blank');
+            }
+        };
+    </script>
+</body>
+</html>
