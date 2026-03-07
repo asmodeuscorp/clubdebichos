@@ -99,6 +99,7 @@
             max-width: 100%;
         }
 
+        /* Estética de niveles */
         #home { border-top: 8px solid var(--bicho-purple); }
         #youtube { border-top: 8px solid var(--bicho-pink); }
         #noticias { border-top: 8px solid var(--bicho-blue); }
@@ -175,18 +176,18 @@
     <div class="wood-texture"></div>
     <div id="bug-container"></div>
 
-    <!-- Panel de Control (Nav) -->
+    <!-- Panel de Control (Navegación Inferior) -->
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-black/60 backdrop-blur-2xl border-2 border-white/20 px-6 py-3 rounded-full flex gap-6 md:gap-10 items-center shadow-2xl">
-        <button onclick="showPage('home')" id="btn-home" class="nav-btn active text-white">
+        <button onclick="showPage('home')" id="btn-home" class="nav-btn active text-white" title="Inicio">
             <i class="fas fa-home text-xl md:text-2xl"></i>
         </button>
-        <button onclick="showPage('youtube')" id="btn-youtube" class="nav-btn text-white/40">
+        <button onclick="showPage('youtube')" id="btn-youtube" class="nav-btn text-white/40" title="Videos">
             <i class="fas fa-play-circle text-xl md:text-2xl"></i>
         </button>
-        <button onclick="showPage('noticias')" id="btn-noticias" class="nav-btn text-white/40">
+        <button onclick="showPage('noticias')" id="btn-noticias" class="nav-btn text-white/40" title="Noticias">
             <i class="fas fa-bullhorn text-xl md:text-2xl"></i>
         </button>
-        <button onclick="showPage('test')" id="btn-test" class="nav-btn text-white/40">
+        <button onclick="showPage('test')" id="btn-test" class="nav-btn text-white/40" title="Test">
             <i class="fas fa-brain text-xl md:text-2xl"></i>
         </button>
     </nav>
@@ -226,7 +227,14 @@
                     </a>
                 </div>
                 <div class="lg:w-2/3 w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-500/40">
-                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/mAf2ehWGmK4" title="Primer Video Club de Bichos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe 
+                        class="w-full h-full" 
+                        src="https://www.youtube.com/embed/mAf2ehWGmK4" 
+                        title="Primer Video Club de Bichos" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
                 </div>
             </div>
         </div>
@@ -237,15 +245,18 @@
         <div class="max-w-6xl w-full px-4 text-center">
             <h2 class="text-4xl md:text-6xl text-blue-400 mb-10 md:mb-16 uppercase">Bicho a Bicho</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
+                <!-- Nota 1 -->
                 <div class="postit bg-yellow-300 wiggle" style="animation-delay: 0s;">
                     <h3 class="text-xl font-bold mb-3">🚀 ¡Arrancamos!</h3>
                     <p class="text-sm leading-snug">Ya empezamos el club. Empezamos con mil detalles técnicos (¡típico de nosotros!), pero ya estamos volando. ¡Gracias por el aguante!</p>
                 </div>
+                <!-- Nota 2 -->
                 <div class="postit bg-blue-300 wiggle" style="animation-delay: 0.5s;">
                     <h3 class="text-xl font-bold mb-3">🕯️ Test Increíble</h3>
-                    <p class="text-sm mb-3">¿Eres bicho? Musaraña diseñó un test épico para mapear tus antenas y tu energía.</p>
+                    <p class="text-sm mb-3">¿Eres bicho? Musaraña diseñó un test épico para mapear tus antenas y tu energía neurodivergente.</p>
                     <button onclick="showPage('test')" class="bg-white/50 px-3 py-1 rounded-full text-xs font-bold hover:bg-white transition">VER TEST</button>
                 </div>
+                <!-- Nota 3 -->
                 <div class="postit bg-pink-300 wiggle" style="animation-delay: 1s;">
                     <h3 class="text-xl font-bold mb-3">🎙️ Episodio 2</h3>
                     <p class="text-sm">El segundo episodio ya está listo en el búnker. Estamos horneando el link oficial, ¡vuelve en breve para verlo!</p>
@@ -274,6 +285,7 @@
     </main>
 
     <script>
+        // Sistema de bichos flotantes (partículas)
         const bugContainer = document.getElementById('bug-container');
         const bugEmojis = ['🐝', '🪲', '🦋', '🐞', '🦗', '🕷️'];
         const isMobile = window.innerWidth < 768;
@@ -295,38 +307,52 @@
             
             bugContainer.appendChild(bug);
             
+            // Ciclo infinito para mantener la población de bichos
             setTimeout(() => {
                 bug.remove();
                 createBug();
             }, duration * 1000);
         }
 
+        // Población inicial
         for(let i=0; i<bugCount; i++) {
             createBug();
         }
 
+        /**
+         * Maneja el cambio de secciones simulando páginas independientes
+         * @param {string} pageId - ID de la sección a mostrar
+         */
         function showPage(pageId) {
             const pages = document.querySelectorAll('.section-page');
             const btns = document.querySelectorAll('.nav-btn');
             
+            // Ocultar todo
             pages.forEach(p => p.classList.remove('active'));
             btns.forEach(b => {
                 b.classList.remove('active');
                 b.classList.add('text-white/40');
             });
 
+            // Mostrar el nivel seleccionado
             const targetPage = document.getElementById(pageId);
             targetPage.classList.add('active');
+            
+            // Activar botón del panel de control
             const targetBtn = document.getElementById('btn-' + pageId);
             targetBtn.classList.add('active');
             targetBtn.classList.remove('text-white/40');
             
+            // Reiniciar scroll interno de la sección
             targetPage.scrollTop = 0;
         }
 
+        // Recargar si cambia drásticamente el tamaño para reajustar bichos
+        let windowWidth = window.innerWidth;
         window.addEventListener('resize', () => {
-            const currentIsMobile = window.innerWidth < 768;
-            if (currentIsMobile !== isMobile) location.reload();
+            if (Math.abs(window.innerWidth - windowWidth) > 100) {
+                location.reload();
+            }
         });
     </script>
 </body>
