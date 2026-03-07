@@ -1,17 +1,333 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Club de Bichos</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f8ff; }
-    h1 { color: #2c3e50; font-size: 3em; }
-    p { color: #555; font-size: 1.2em; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bicho Búnker | Gusarapo & Musaraña</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bunker-wood: #3d2b1f;
+            --bicho-pink: #ff006e;
+            --bicho-purple: #8338ec;
+            --bicho-yellow: #ffbe0b;
+            --bicho-blue: #3a86ff;
+            --bicho-green: #06d6a0;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bunker-wood);
+            color: #fff;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        /* Fondo de Madera Animado */
+        .wood-texture {
+            background-color: var(--bunker-wood);
+            background-image: url("https://www.transparenttextures.com/patterns/wood-pattern.png");
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+        }
+
+        /* Animación de Bichos Flotantes */
+        .bug-float {
+            position: absolute;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.6;
+            animation: floatBug linear infinite;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+        }
+
+        @keyframes floatBug {
+            0% { transform: translate(-100px, 110vh) rotate(0deg) scale(0.5); }
+            50% { transform: translate(50vw, 50vh) rotate(180deg) scale(1.2); }
+            100% { transform: translate(110vw, -110px) rotate(360deg) scale(0.5); }
+        }
+
+        .section-page {
+            height: 100vh;
+            width: 100vw;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            overflow-y: auto;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .section-page.active {
+            display: flex;
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; filter: blur(5px); transform: scale(1.1); }
+            to { opacity: 1; filter: blur(0); transform: scale(1); }
+        }
+
+        .nav-btn {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 10px;
+        }
+
+        .nav-btn.active {
+            transform: scale(1.4) translateY(-8px);
+            color: var(--bicho-yellow) !important;
+            filter: drop-shadow(0 0 10px var(--bicho-yellow));
+        }
+
+        .bicho-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            border-radius: 35px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            max-width: 100%;
+        }
+
+        #home { border-top: 8px solid var(--bicho-purple); }
+        #youtube { border-top: 8px solid var(--bicho-pink); }
+        #noticias { border-top: 8px solid var(--bicho-blue); }
+        #test { border-top: 8px solid var(--bicho-green); }
+
+        .logo-placeholder {
+            width: 240px;
+            height: 240px;
+            background: rgba(255,255,255,0.05);
+            border: 4px dashed rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            position: relative;
+            animation: pulseLogo 4s infinite;
+        }
+
+        @media (min-width: 768px) {
+            .logo-placeholder { width: 340px; height: 340px; }
+        }
+
+        @keyframes pulseLogo {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        .postit {
+            background: var(--bicho-yellow);
+            color: #3d2b1f;
+            padding: 1.5rem;
+            border-radius: 5px;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .postit::before {
+            content: "📌";
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+        }
+
+        .postit:hover {
+            transform: rotate(0deg) scale(1.05) translateY(-5px);
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.5);
+        }
+
+        .wiggle {
+            animation: wiggle 2s infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-1deg); }
+            50% { transform: rotate(1deg); }
+        }
+
+        .section-page::-webkit-scrollbar {
+            width: 6px;
+        }
+        .section-page::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Club de Bichos</h1>
-  <p>Bienvenido al Club de Bichos. Proximamente mas contenido.</p>
+
+    <div class="wood-texture"></div>
+    <div id="bug-container"></div>
+
+    <!-- Panel de Control (Nav) -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-black/60 backdrop-blur-2xl border-2 border-white/20 px-6 py-3 rounded-full flex gap-6 md:gap-10 items-center shadow-2xl">
+        <button onclick="showPage('home')" id="btn-home" class="nav-btn active text-white">
+            <i class="fas fa-home text-xl md:text-2xl"></i>
+        </button>
+        <button onclick="showPage('youtube')" id="btn-youtube" class="nav-btn text-white/40">
+            <i class="fas fa-play-circle text-xl md:text-2xl"></i>
+        </button>
+        <button onclick="showPage('noticias')" id="btn-noticias" class="nav-btn text-white/40">
+            <i class="fas fa-bullhorn text-xl md:text-2xl"></i>
+        </button>
+        <button onclick="showPage('test')" id="btn-test" class="nav-btn text-white/40">
+            <i class="fas fa-brain text-xl md:text-2xl"></i>
+        </button>
+    </nav>
+
+    <!-- PÁGINA 1: HOME -->
+    <main id="home" class="section-page active">
+        <div class="max-w-4xl text-center">
+            <div class="logo-placeholder">
+                <img src="logo.png" alt="Logo Club de Bichos" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" class="w-full h-full object-contain">
+                <div class="hidden text-white/20 font-bold uppercase tracking-widest text-xs">Logo.png</div>
+                <div class="absolute inset-0 border-4 border-white/10 rounded-full animate-ping opacity-10"></div>
+            </div>
+            
+            <h1 class="text-5xl md:text-8xl mb-4 text-white drop-shadow-lg uppercase tracking-tighter">
+                BICHO <span class="text-yellow-400">BÚNKER</span>
+            </h1>
+
+            <p class="text-lg md:text-2xl mb-10 text-gray-200 font-medium px-4 leading-tight max-w-2xl mx-auto">
+                ¡Ya abrimos el nido! El refugio de Gusarapo y Musaraña donde volar en círculos es nuestra especialidad.
+            </p>
+            
+            <button onclick="showPage('test')" class="bg-yellow-400 text-stone-900 font-black py-4 px-10 md:px-14 rounded-full hover:bg-white transition-all transform hover:scale-110 shadow-2xl uppercase tracking-wider text-sm md:text-lg">
+                ¿ERES UN BICHO?
+            </button>
+        </div>
+    </main>
+
+    <!-- PÁGINA 2: YOUTUBE -->
+    <main id="youtube" class="section-page">
+        <div class="max-w-6xl w-full">
+            <div class="bicho-card p-6 md:p-10 flex flex-col lg:flex-row items-center gap-8">
+                <div class="lg:w-1/3 text-center lg:text-left">
+                    <h2 class="text-4xl md:text-5xl text-pink-500 mb-4 uppercase tracking-tighter">Primer Vuelo</h2>
+                    <p class="text-base md:text-lg text-gray-100 mb-6">¡Inauguramos el canal! Dale amor al primer video oficial desde el búnker.</p>
+                    <a href="https://www.youtube.com/@clubdebichos" target="_blank" class="bg-red-600 px-8 py-4 rounded-full font-bold inline-flex items-center gap-3 hover:bg-red-500 transition shadow-lg text-sm md:text-base">
+                        <i class="fab fa-youtube"></i> IR AL CANAL
+                    </a>
+                </div>
+                <div class="lg:w-2/3 w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-pink-500/40">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/mAf2ehWGmK4" title="Primer Video Club de Bichos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PÁGINA 3: NOTICIAS -->
+    <main id="noticias" class="section-page">
+        <div class="max-w-6xl w-full px-4 text-center">
+            <h2 class="text-4xl md:text-6xl text-blue-400 mb-10 md:mb-16 uppercase">Bicho a Bicho</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
+                <div class="postit bg-yellow-300 wiggle" style="animation-delay: 0s;">
+                    <h3 class="text-xl font-bold mb-3">🚀 ¡Arrancamos!</h3>
+                    <p class="text-sm leading-snug">Ya empezamos el club. Empezamos con mil detalles técnicos (¡típico de nosotros!), pero ya estamos volando. ¡Gracias por el aguante!</p>
+                </div>
+                <div class="postit bg-blue-300 wiggle" style="animation-delay: 0.5s;">
+                    <h3 class="text-xl font-bold mb-3">🕯️ Test Increíble</h3>
+                    <p class="text-sm mb-3">¿Eres bicho? Musaraña diseñó un test épico para mapear tus antenas y tu energía.</p>
+                    <button onclick="showPage('test')" class="bg-white/50 px-3 py-1 rounded-full text-xs font-bold hover:bg-white transition">VER TEST</button>
+                </div>
+                <div class="postit bg-pink-300 wiggle" style="animation-delay: 1s;">
+                    <h3 class="text-xl font-bold mb-3">🎙️ Episodio 2</h3>
+                    <p class="text-sm">El segundo episodio ya está listo en el búnker. Estamos horneando el link oficial, ¡vuelve en breve para verlo!</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PÁGINA 4: TEST -->
+    <main id="test" class="section-page">
+        <div class="max-w-4xl w-full text-center">
+            <div class="bicho-card p-8 md:p-14 border-4 border-green-400/50 mx-auto">
+                <span class="text-5xl md:text-7xl mb-4 block">🕯️🧠</span>
+                <h2 class="text-3xl md:text-6xl text-green-400 mb-2 uppercase leading-none">¿También eres un Bicho?</h2>
+                <h3 class="text-xl md:text-3xl text-white mb-8 font-bold italic opacity-90">Mapeo Neurodivergente 🕯️</h3>
+                
+                <p class="text-base md:text-xl text-gray-200 mb-10 max-w-xl mx-auto leading-relaxed">
+                    Si te sientes identificado con Gusarapo y Musaraña, es momento de encender tu vela y mapear tu cerebro bicho.
+                </p>
+                
+                <a href="https://clubdebichos.xidito.com/eresbicho.html" target="_blank" class="inline-block bg-green-500 text-stone-900 text-xl md:text-3xl font-black py-5 md:py-7 px-10 md:px-16 rounded-full hover:bg-white transition-all transform hover:scale-110 shadow-[0_0_40px_rgba(6,214,160,0.5)] uppercase">
+                    INICIAR MAPEO
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const bugContainer = document.getElementById('bug-container');
+        const bugEmojis = ['🐝', '🪲', '🦋', '🐞', '🦗', '🕷️'];
+        const isMobile = window.innerWidth < 768;
+        const bugCount = isMobile ? 8 : 16;
+
+        function createBug() {
+            const bug = document.createElement('div');
+            bug.className = 'bug-float';
+            bug.innerText = bugEmojis[Math.floor(Math.random() * bugEmojis.length)];
+            
+            const size = (isMobile ? 15 : 25) + Math.random() * (isMobile ? 25 : 45);
+            const duration = 12 + Math.random() * 15;
+            const delay = Math.random() * 10;
+            
+            bug.style.fontSize = `${size}px`;
+            bug.style.animationDuration = `${duration}s`;
+            bug.style.animationDelay = `-${delay}s`;
+            bug.style.left = `${Math.random() * 90}vw`;
+            
+            bugContainer.appendChild(bug);
+            
+            setTimeout(() => {
+                bug.remove();
+                createBug();
+            }, duration * 1000);
+        }
+
+        for(let i=0; i<bugCount; i++) {
+            createBug();
+        }
+
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.section-page');
+            const btns = document.querySelectorAll('.nav-btn');
+            
+            pages.forEach(p => p.classList.remove('active'));
+            btns.forEach(b => {
+                b.classList.remove('active');
+                b.classList.add('text-white/40');
+            });
+
+            const targetPage = document.getElementById(pageId);
+            targetPage.classList.add('active');
+            const targetBtn = document.getElementById('btn-' + pageId);
+            targetBtn.classList.add('active');
+            targetBtn.classList.remove('text-white/40');
+            
+            targetPage.scrollTop = 0;
+        }
+
+        window.addEventListener('resize', () => {
+            const currentIsMobile = window.innerWidth < 768;
+            if (currentIsMobile !== isMobile) location.reload();
+        });
+    </script>
 </body>
 </html>
