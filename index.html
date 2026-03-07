@@ -200,8 +200,8 @@
     <div class="wood-texture"></div>
     <div id="bug-container"></div>
 
-    <!-- Audio Player -->
-    <audio id="bg-music" loop>
+    <!-- Reproductor de Audio -->
+    <audio id="bg-music" loop autoplay>
         <source src="bichos.mp3" type="audio/mpeg">
     </audio>
 
@@ -211,7 +211,7 @@
             <button onclick="toggleMusic()" id="music-btn" class="text-white hover:text-yellow-400 transition" title="Play/Pausa">
                 <i class="fas fa-play text-xs" id="music-icon"></i>
             </button>
-            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.15" oninput="updateVolume(this.value)" title="Volumen">
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.10" oninput="updateVolume(this.value)" title="Volumen">
             <span class="text-[10px] font-bold text-white/50 uppercase tracking-tighter hidden md:block">Sonido</span>
         </div>
     </div>
@@ -325,18 +325,18 @@
     </main>
 
     <script>
-        // Audio Logic
+        // Lógica de Audio
         const bgMusic = document.getElementById('bg-music');
         const musicBtn = document.getElementById('music-btn');
         const musicIcon = document.getElementById('music-icon');
         const volSlider = document.getElementById('volume-slider');
 
-        // Set initial volume
-        bgMusic.volume = 0.15;
+        // Configurar volumen inicial al 10%
+        bgMusic.volume = 0.10;
 
         function toggleMusic() {
             if (bgMusic.paused) {
-                bgMusic.play();
+                bgMusic.play().catch(e => console.log("Reproducción automática bloqueada"));
                 musicIcon.classList.remove('fa-play');
                 musicIcon.classList.add('fa-pause');
             } else {
@@ -350,7 +350,20 @@
             bgMusic.volume = val;
         }
 
-        // Sistema de bichos flotantes (partículas)
+        // Intento de reproducción automática al cargar
+        window.onload = () => {
+            bgMusic.play().then(() => {
+                musicIcon.classList.remove('fa-play');
+                musicIcon.classList.add('fa-pause');
+            }).catch(() => {
+                // Si falla por bloqueo del navegador, esperamos al primer clic
+                window.addEventListener('click', () => {
+                    if (bgMusic.paused) toggleMusic();
+                }, { once: true });
+            });
+        };
+
+        // Sistema de bichos flotantes
         const bugContainer = document.getElementById('bug-container');
         const bugEmojis = ['🐝', '🪲', '🦋', '🐞', '🦗', '🕷️'];
         const isMobile = window.innerWidth < 768;
