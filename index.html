@@ -1,6 +1,98 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head>G-RGQ2WCMVFQ
+        <!-- Google Analytics 4 - G-RGQ2WCMVFQ -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-RGQ2WCMVFQ"></script>
+        <script>
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', 'G-RGQ2WCMVFQ', {
+                              send_page_view: true,
+                              cookie_flags: 'SameSite=None;Secure',
+                              allow_google_signals: true,
+                              allow_ad_personalization_signals: true
+                                        });
+
+                  // Rastreo de secciones visitadas (Inicio, Videos, Radio, Mapeo)
+                  document.addEventListener('DOMContentLoaded', function() {
+                              // Interceptar navegacion entre secciones
+                              document.querySelectorAll('.nav-btn').forEach(function(btn) {
+                                            btn.addEventListener('click', function() {
+                                                            var sectionName = this.querySelector('.nav-label') ? this.querySelector('.nav-label').innerText : this.id;
+                                                            gtag('event', 'section_view', {
+                                                                              event_category: 'navegacion',
+                                                                              event_label: sectionName,
+                                                                              section_name: sectionName
+                                                                                              });
+                                                          });
+                                          });
+
+                              // Rastreo de tiempo en pagina (engagement)
+                              var startTime = Date.now();
+                              var milestones = [30, 60, 120, 300];
+                              milestones.forEach(function(seconds) {
+                                            setTimeout(function() {
+                                                            gtag('event', 'time_on_site', {
+                                                                              event_category: 'engagement',
+                                                                              event_label: seconds + 's',
+                                                                              value: seconds
+                                                                                              });
+                                                          }, seconds * 1000);
+                                          });
+
+                              // Rastreo de clic en boton EMPEZAR MAPEO
+                              var mapeoBtn = document.querySelector('a[href*="eresbicho"]');
+                              if (mapeoBtn) {
+                                            mapeoBtn.addEventListener('click', function() {
+                                                            gtag('event', 'click_mapeo', {
+                                                                              event_category: 'conversion',
+                                                                              event_label: 'Empezar Mapeo'
+                                                                                              });
+                                                          });
+                                          }
+
+                                          // Rastreo de clic en Ver canal de YouTube
+                                          var ytBtn = document.querySelector('a[href*="youtube"]');
+                              if (ytBtn) {
+                                            ytBtn.addEventListener('click', function() {
+                                                            gtag('event', 'click_youtube', {
+                                                                              event_category: 'outbound',
+                                                                              event_label: 'Ver Canal YouTube'
+                                                                                              });
+                                                          });
+                                          }
+
+                                          // Rastreo de scroll profundo por seccion
+                                          document.querySelectorAll('.section-page').forEach(function(section) {
+                                                        var scrolled50 = false, scrolled90 = false;
+                                                        section.addEventListener('scroll', function() {
+                                                                        var pct = (section.scrollTop / (section.scrollHeight - section.clientHeight)) * 100;
+                                                                        if (!scrolled50 && pct >= 50) {
+                                                                                          scrolled50 = true;
+                                                                                          gtag('event', 'scroll_depth', { event_category: 'engagement', event_label: section.id + '_50pct', value: 50 });
+                                                                                        }
+                                                                                        if (!scrolled90 && pct >= 90) {
+                                                                                                          scrolled90 = true;
+                                                                                                          gtag('event', 'scroll_depth', { event_category: 'engagement', event_label: section.id + '_90pct', value: 90 });
+                                                                                                        }
+                                                                                                      });
+                                                      });
+
+                              // Rastreo de boton Eres Bicho
+                              var eresBichoBtn = document.querySelector('button, a');
+                              document.querySelectorAll('button').forEach(function(btn) {
+                                            btn.addEventListener('click', function() {
+                                                            var label = this.innerText || this.id;
+                                                            gtag('event', 'button_click', {
+                                                                              event_category: 'interaccion',
+                                                                              event_label: label.trim().substring(0, 50)
+                                                                                              });
+                                                          });
+                                          });
+                            });
+                </script>
+        <!-- Fin Google Analytics 4 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bicho Búnker | Gusarapo & Musaraña</title>
