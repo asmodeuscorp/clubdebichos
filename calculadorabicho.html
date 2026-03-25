@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculadora: El Impuesto Bicho | Xidito Estudios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-green: #39FF14;
+            --neon-cyan: #00F3FF;
+            --neon-magenta: #FF00FF;
+            --neon-yellow: #FFFF00;
+            --facebook-blue: #1877F2;
+            --youtube-red: #FF0000;
+        }
+
+        @keyframes bgCycle {
+            0% { background-color: #030305; }
+            33% { background-color: #0a0512; }
+            66% { background-color: #050d10; }
+            100% { background-color: #030305; }
+        }
+
+        body {
+            animation: bgCycle 10s infinite linear;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title-font { font-family: 'Syncopate', sans-serif; }
+
+        .bicho-bg {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            will-change: transform, opacity, filter;
+        }
+
+        .glass {
+            background: linear-gradient(145deg, rgba(30, 30, 45, 0.98), rgba(15, 15, 25, 1));
+            border: 3px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 40px 100px rgba(0,0,0,1), inset 0 0 60px rgba(255,255,255,0.02);
+            border-radius: 40px;
+            width: 100%;
+            max-width: 90vw;
+            margin: auto;
+        }
+
+        @media (min-width: 640px) {
+            .glass { max-width: 440px; }
+        }
+
+        .step-card {
+            display: none;
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            position: relative;
+            z-index: 10;
+        }
+        .step-card.active { display: flex; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .shake-paper { animation: paperShake 0.4s infinite; }
+        @keyframes paperShake {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        .hammer-hit {
+            display: inline-block;
+            animation: hammerAnim 0.5s infinite ease-in-out;
+            transform-origin: bottom right;
+        }
+        @keyframes hammerAnim {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-55deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .rocket-giant {
+            font-size: clamp(5rem, 15vw, 8rem);
+            display: inline-block;
+            animation: rocketVibe 0.05s infinite alternate;
+        }
+        @keyframes rocketVibe { from { transform: translate(3px, 3px); } to { transform: translate(-3px, -3px); } }
+        
+        .fire-trail {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            animation: fireFlicker 0.1s infinite;
+        }
+        @keyframes fireFlicker {
+            0%, 100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+            50% { opacity: 0.6; transform: translateX(-50%) translateY(12px) scale(1.3); }
+        }
+
+        .trash-container { position: relative; width: 100%; height: 100px; }
+        .food-item {
+            position: absolute;
+            animation: flyToBin 1.8s infinite ease-in;
+            font-size: 2.5rem;
+        }
+        @keyframes flyToBin {
+            0% { left: 0%; top: 0; opacity: 1; transform: rotate(0) scale(1); }
+            80% { left: 82%; top: 15px; opacity: 1; transform: rotate(360deg) scale(0.6); }
+            100% { left: 88%; top: 30px; opacity: 0; transform: scale(0.1); }
+        }
+
+        .btn-bicho {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: linear-gradient(135deg, var(--neon-magenta), #9D00FF, #00D1FF);
+            background-size: 200% 200%;
+            animation: bgMove 4s infinite alternate;
+            box-shadow: 0 15px 35px rgba(157, 0, 255, 0.4);
+        }
+        @keyframes bgMove { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        .btn-bicho:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 20px 50px rgba(0, 209, 255, 0.6); }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, #181825, #2a2a3a);
+            height: 20px;
+            border-radius: 10px;
+            width: 100%;
+            border: 2px solid rgba(255,255,255,0.1);
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 40px;
+            height: 40px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 30px var(--neon-green), inset 0 0 10px white;
+            border: 5px solid #fff;
+            margin-top: -10px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, var(--neon-cyan), var(--neon-green), var(--neon-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #result-capture {
+            background-color: #08080a;
+            padding: 30px;
+            border-radius: 40px;
+            border: 10px solid var(--neon-magenta);
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .social-btn {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: floatSocial 3s infinite ease-in-out;
+        }
+        @keyframes floatSocial {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .social-btn:hover { transform: scale(1.2) rotate(5deg); filter: brightness(1.2); }
+
+        .fb-color { fill: var(--facebook-blue); filter: drop-shadow(0 0 8px rgba(24, 119, 242, 0.5)); }
+        .yt-color { fill: var(--youtube-red); filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.5)); }
+    </style>
+</head>
+<body>
+
+    <div id="emoji-container"></div>
+
+    <div id="app-container" class="w-full relative z-10 px-4">
+        
+        <!-- Pantalla de Inicio -->
+        <div id="step-0" class="step-card active flex-col items-center text-center glass p-8 sm:p-10">
+            <div class="mb-4 relative">
+                <span class="text-7xl sm:text-8xl block animate-bounce">🪲</span>
+                <span class="absolute -top-4 -right-4 text-4xl">💎</span>
+            </div>
+            <h1 class="title-font text-2xl sm:text-3xl font-black mb-4 leading-tight tracking-tighter">
+                ¿LA VIDA TE COBRA COMISIÓN POR <span class="gradient-text uppercase">SER TÚ?</span>
+            </h1>
+            <p class="text-gray-300 mb-8 text-base sm:text-lg font-bold">
+                Calcula tu <strong class="text-white">Impuesto Bicho</strong> y descubre el costo de tu cortocircuito cerebral.
+            </p>
+            <div class="space-y-3 w-full">
+                <button onclick="nextStep(true)" class="btn-bicho w-full text-black font-black py-5 px-8 rounded-[25px] text-xl uppercase tracking-widest shadow-2xl">
+                    Hackear mi Cartera
+                </button>
+                <button onclick="showLevels()" class="w-full bg-white/5 text-white font-bold py-3 px-8 rounded-xl text-[9px] uppercase tracking-widest border border-white/10 hover:bg-white/10">
+                    Ver Jerarquía Bicho
+                </button>
+            </div>
+            
+            <!-- Footer Inicio -->
+            <div id="footer-start" class="mt-8 flex flex-col items-center gap-2">
+                <p class="text-[8px] text-gray-500 font-black uppercase tracking-[0.4em]">Designed by</p>
+                <a href="https://estudio.xidito.com/" target="_blank" class="title-font text-xs text-white font-bold hover:text-cyan-400 transition underline underline-offset-4">XIDITO ESTUDIOS</a>
+                <div class="mt-4 flex flex-col items-center gap-2">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Sigue a Club de Bichos:</p>
+                    <div class="flex gap-6">
+                        <!-- Facebook -->
+                        <a href="https://www.facebook.com/ClubdeBichosPodcast" target="_blank" class="social-btn">
+                            <svg class="w-9 h-9 fb-color" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                        <!-- YouTube -->
+                        <a href="https://www.youtube.com/@clubdebichos" target="_blank" class="social-btn">
+                            <svg class="w-9 h-9 yt-color" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="question-container"></div>
+
+        <div id="loading" class="step-card flex-col items-center text-center glass p-10">
+            <div class="relative w-32 h-32 mb-6">
+                <div class="absolute inset-0 border-[12px] border-white/5 rounded-full"></div>
+                <div class="absolute inset-0 border-[12px] border-t-magenta-600 rounded-full animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-6xl animate-pulse">⚡</div>
+            </div>
+            <h2 class="title-font text-xl mb-3 gradient-text font-black uppercase italic">¡Analizando Desmadre!</h2>
+            <p class="text-gray-500 font-bold uppercase text-[9px] tracking-[0.3em]">No reinicies, tu cerebro está ocupado...</p>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div id="step-result" class="step-card flex-col glass p-5 max-h-[96dvh] overflow-y-auto">
+            <div id="result-capture-area" class="mb-4 flex justify-center">
+                <div id="result-capture" class="text-center shadow-2xl">
+                    <p class="text-[9px] uppercase tracking-[0.5em] text-yellow-400 font-black mb-4">REPORTE DE DAÑOS</p>
+                    <h2 class="title-font text-[10px] font-bold mb-6 text-white tracking-widest">MI IMPUESTO BICHO</h2>
+                    
+                    <div id="final-amount" class="text-6xl font-black mb-6 text-white tracking-tighter" style="animation: powJump 0.6s infinite alternate cubic-bezier(0.175, 0.885, 0.32, 1.275);">$0</div>
+                    
+                    <div class="bg-white/5 p-5 rounded-[30px] mb-6 border border-white/10">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <span id="result-icon" class="text-3xl"></span>
+                            <p id="result-level-name" class="text-base font-black uppercase italic"></p>
+                        </div>
+                        <p id="result-message" class="text-xs font-bold text-gray-200 leading-snug"></p>
+                    </div>
+
+                    <div class="h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent w-full mb-6 opacity-30"></div>
+                    
+                    <div class="text-left space-y-3 mb-6">
+                        <p class="text-[9px] text-yellow-400 font-black uppercase tracking-[0.2em]">💡 TIP PARA TU CEREBRO:</p>
+                        <p id="result-tip" class="text-[10px] text-gray-400 font-black italic leading-tight"></p>
+                    </div>
+
+                    <!-- Footer Final -->
+                    <div class="pt-4 border-t border-white/5 flex flex-col items-center gap-1">
+                        <p class="text-[8px] font-black text-gray-600 uppercase tracking-widest">Hecho en <span class="text-white">Xidito Estudios</span></p>
+                        <a href="https://estudio.xidito.com/" class="text-cyan-500 text-[9px] font-bold tracking-tighter uppercase mb-3">estudio.xidito.com</a>
+                        
+                        <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Club de Bichos RRSS:</p>
+                        <div class="flex gap-5 justify-center">
+                            <a href="https://www.facebook.com/ClubdeBichosPodcast" target="_blank" class="w-7 h-7 fb-color"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                            <a href="https://www.youtube.com/@clubdebichos" target="_blank" class="w-7 h-7 yt-color"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <button onclick="downloadImage()" class="flex flex-col items-center justify-center gap-1 py-4 rounded-2xl bg-white text-black font-black hover:scale-95 transition shadow-xl">
+                    <span class="text-3xl">💾</span> <span class="text-[9px] uppercase font-black">Guardar</span>
+                </button>
+                <button onclick="shareResult()" class="flex flex-col items-center justify-center gap-1 py-4 rounded-2xl bg-cyan-600 text-white font-black hover:scale-95 transition shadow-xl">
+                    <span class="text-3xl">📲</span> <span class="text-[9px] uppercase font-black">Compartir</span>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-2">
+                <button onclick="showLevels(true)" class="w-full py-3 bg-white/5 rounded-xl text-[9px] font-black uppercase text-gray-400 border border-white/10 hover:bg-white/10 transition">Ver todos los niveles</button>
+                <button onclick="location.reload()" class="w-full py-3 text-gray-600 text-[9px] font-black uppercase hover:text-white transition tracking-widest">Reiniciar Contador</button>
+            </div>
+        </div>
+
+        <div id="levels-view" class="step-card flex-col glass p-8 overflow-y-auto max-h-[85dvh]">
+            <h2 class="title-font text-xl font-black mb-6 gradient-text text-center italic uppercase">Jerarquía Bicho</h2>
+            <div id="levels-list" class="space-y-3"></div>
+            <button onclick="hideLevels()" class="mt-6 btn-bicho py-4 rounded-2xl font-black text-black uppercase text-xs tracking-widest">Cerrar</button>
+        </div>
+
+    </div>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-white text-black px-10 py-4 rounded-full font-black shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[100] text-xs uppercase tracking-widest">
+        ¡Copiado!
+    </div>
+
+    <script>
+        const emojis = ['🪲', '💸', '🧠', '🍕', '🎮', '🛒', '🌮', '💀', '👽', '🔥', '🔋', '🎰', '🥑', '📱', '🧾'];
+        const levels = [
+            { icon: '🥉', range: [0, 500], name: "Bicho Ninja", color: "#00F3FF", msg: "Control bicho bajo llave. Error en la Matrix de la distracción.", tip: "No te confíes, una 'oferta relámpago' te puede tumbar." },
+            { icon: '🥈', range: [501, 2000], name: "Cortocircuito", color: "#39FF14", msg: "Cerebro chispotea a veces. Nada grave, pero cuida esas suscripciones.", tip: "Pon nombres humillantes a tus alarmas para no ignorarlas." },
+            { icon: '🥇', range: [2001, 5000], name: "Bicho Cripto", color: "#FF00FF", msg: "¡No mames! Tu dinero se fuga más rápido que tus ganas de madrugar.", tip: "Espérate 24 horas antes de comprar algo impulsivo." },
+            { icon: '🏆', range: [5001, Infinity], name: "DIOS BICHO", color: "#FFFF00", msg: "Cartera en terapia intensiva. CEO mundial de los olvidos costosos.", tip: "Entrega tus tarjetas a un adulto o congélalas en hielo." }
+        ];
+
+        const questions = [
+            { id: 'olvidos', emoji: '📄', title: 'Olvidos Fatales', text: '¿Cuánto pagaste de recargos por facturas o servicios olvidados?', max: 5000, step: 100, class: 'shake-paper' },
+            { id: 'subs', emoji: '🎬', title: 'Apps Fantasmas', text: '¿Suscripciones que pagaste y NO usaste? (Netflix, Disney, Canva, Capcut...)', type: 'counter' },
+            { id: 'dobles', emoji: '🔨', title: 'Doble o Nada', text: '¿Gasto en cosas que compraste porque no hallaste lo que ya tenías?', max: 3000, step: 50, class: 'hammer-hit' },
+            { id: 'desperdicio', emoji: '🗑️', title: 'Ecosistema Refi', text: '¿Dinero en comida que se pudrió por olvido?', max: 2000, step: 50, special: 'refri' },
+            { id: 'impulso', emoji: '🚀', title: 'Hobby Fugaz', text: '¿Gasto en ese hobby intenso que abandonaste a los 3 días?', max: 10000, step: 200, special: 'rocket' }
+        ];
+
+        let currentStep = 0, state = { olvidos: 0, subs: 0, dobles: 0, desperdicio: 0, impulso: 0 }, bichoElements = [];
+        let audioCtx, fromResult = false;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(500 + Math.random()*200, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'coins') {
+                for(let i=0; i<15; i++){
+                    const t = audioCtx.currentTime + (i * 0.05);
+                    const o = audioCtx.createOscillator(); o.connect(gain); o.type = 'triangle';
+                    o.frequency.setValueAtTime(1200 + (Math.random()*800), t);
+                    gain.gain.setValueAtTime(0.06, t); o.start(t); o.stop(t + 0.06);
+                }
+            } else if (type === 'rocket') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1500, audioCtx.currentTime + 0.8);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+            } else if (type === 'trash') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        function createFloatingEmojis() {
+            const container = document.getElementById('emoji-container');
+            const num = window.innerWidth < 600 ? 12 : 25;
+            for (let i = 0; i < num; i++) {
+                const el = document.createElement('div');
+                el.className = 'bicho-bg'; el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                let x = Math.random() * 95, y = Math.random() * 95;
+                el.style.left = x + 'vw'; el.style.top = y + 'vh';
+                el.style.fontSize = (Math.random() * 1.5 + 2) + 'rem';
+                container.appendChild(el);
+                bichoElements.push({ el, x, y, dx: (Math.random()-0.5)*0.5, dy: (Math.random()-0.5)*0.5, rot: 0, dr: (Math.random()-0.5)*3, phase: Math.random()*Math.PI*2 });
+            }
+            requestAnimationFrame(animateBichos);
+        }
+
+        function animateBichos() {
+            const time = Date.now() * 0.0025;
+            bichoElements.forEach(b => {
+                b.x += b.dx; b.y += b.dy; b.rot += b.dr;
+                if (b.x < -10 || b.x > 105) b.dx *= -1;
+                if (b.y < -10 || b.y > 105) b.dy *= -1;
+                const scale = 1 + Math.sin(time + b.phase) * 0.3, opacity = 0.3 + Math.sin(time * 0.8 + b.phase) * 0.15;
+                b.el.style.transform = `translate(${b.x}vw, ${b.y}vh) rotate(${b.rot}deg) scale(${scale})`;
+                b.el.style.opacity = opacity;
+                b.el.style.filter = `hue-rotate(${(time*50)%360}deg)`;
+            });
+            requestAnimationFrame(animateBichos);
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('question-container');
+            questions.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.id = `step-${index + 1}`; div.className = 'step-card flex-col glass p-8 sm:p-10 overflow-hidden';
+                let extra = '';
+                if(q.id === 'subs') extra = `<div class="flex gap-4 mb-6 justify-center items-center"><span class="text-5xl animate-bounce">🎬</span><span class="text-5xl animate-pulse brightness-125">🎨</span><span class="text-5xl animate-bounce" style="animation-delay:0.3s">📺</span></div>`;
+                if(q.special === 'refri') extra = `<div class="trash-container mb-6 flex justify-between items-center px-4"><div class="relative w-full h-12"><span class="food-item" style="animation-delay:0s">🍕</span><span class="food-item" style="animation-delay:0.6s">🌮</span><span class="food-item" style="animation-delay:1.2s">🥑</span></div><span class="text-6xl ml-4">🗑️</span></div>`;
+                if(q.special === 'rocket') extra = `<div class="flex justify-center mb-8 relative h-48 mt-2"><div class="rocket-giant">🚀<div class="fire-trail">🔥</div></div></div>`;
+
+                let input = q.type === 'counter' ? `<div class="flex flex-col items-center gap-6 mb-8"><div class="flex items-center gap-10"><button onclick="updateCounter(-1)" class="w-16 h-16 rounded-2xl border-4 border-cyan-500 flex items-center justify-center text-4xl font-black hover:bg-cyan-500 hover:text-black transition shadow-xl">-</button><span id="count-subs" class="text-7xl font-black gradient-text">0</span><button onclick="updateCounter(1)" class="w-16 h-16 rounded-2xl border-4 border-cyan-500 flex items-center justify-center text-4xl font-black hover:bg-cyan-500 hover:text-black transition shadow-xl">+</button></div></div>` : `<div class="mb-8"><div class="flex justify-between items-end mb-4"><span class="text-[10px] font-black text-gray-700">$0</span><span id="display-${q.id}" class="text-4xl font-black text-white">$0</span><span class="text-[10px] font-black text-gray-700">$${q.max.toLocaleString()}+</span></div><input type="range" min="0" max="${q.max}" step="${q.step}" value="0" oninput="updateVal('${q.id}', this.value)"></div>`;
+
+                const header = (q.id === 'subs' || q.special === 'rocket') ? '' : `<span class="text-6xl ${q.class || ''}">${q.emoji}</span>`;
+                div.innerHTML = `<div class="flex items-center gap-4 mb-6">${header}<div class="text-left"><h2 class="text-[9px] font-black uppercase tracking-[0.4em] text-gray-500 mb-1">Categoría</h2><h3 class="text-xl font-black gradient-text uppercase">${q.title}</h3></div></div>${extra}<p class="text-gray-200 mb-8 text-lg font-bold leading-tight">${q.text}</p>${input}<button onclick="nextStep()" class="btn-bicho text-black font-black py-5 px-8 rounded-[25px] text-lg uppercase tracking-widest">Siguiente</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function updateVal(id, val) {
+            state[id] = parseInt(val);
+            document.getElementById(`display-${id}`).innerText = `$${state[id].toLocaleString()}`;
+            if (Math.random() > 0.8) playSound('click');
+        }
+
+        function updateCounter(dir) {
+            state.subs = Math.max(0, state.subs + dir);
+            document.getElementById('count-subs').innerText = state.subs;
+            playSound('click');
+        }
+
+        function nextStep(isFirst = false) {
+            if (isFirst) initAudio();
+            if (currentStep === 4) playSound('rocket');
+            else if (currentStep === 3) playSound('trash');
+            else playSound('click');
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            currentStep++;
+            if (currentStep > questions.length) calculateResult();
+            else document.getElementById(`step-${currentStep}`).classList.add('active');
+        }
+
+        function calculateResult() {
+            document.getElementById('loading').classList.add('active');
+            setTimeout(() => {
+                const total = state.olvidos + (state.subs * 150) + state.dobles + state.desperdicio + state.impulso;
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('step-result').classList.add('active');
+                const level = levels.find(l => total >= l.range[0] && total <= l.range[1]) || levels[levels.length-1];
+                document.getElementById('final-amount').innerText = `$${total.toLocaleString()}`;
+                document.getElementById('final-amount').style.color = level.color;
+                document.getElementById('result-icon').innerText = level.icon;
+                document.getElementById('result-level-name').innerText = level.name;
+                document.getElementById('result-level-name').style.color = level.color;
+                document.getElementById('result-message').innerText = level.msg;
+                document.getElementById('result-tip').innerText = level.tip;
+                playSound('coins');
+            }, 1200);
+        }
+
+        function showLevels(fromRes = false) {
+            fromResult = fromRes; playSound('click');
+            document.getElementById(fromResult ? 'step-result' : 'step-0').classList.remove('active');
+            const list = document.getElementById('levels-list');
+            list.innerHTML = levels.map(l => `<div class="p-4 rounded-[25px] border-2 bg-white/5 flex items-center gap-4 border-opacity-30" style="border-color: ${l.color}"><span class="text-4xl">${l.icon}</span><div class="flex-1"><div class="flex justify-between items-center mb-1"><span class="font-black text-sm uppercase tracking-widest" style="color: ${l.color}">${l.name}</span><span class="text-[9px] font-black text-gray-500">${l.range[1] === Infinity ? '+$5,001' : `$${l.range[0].toLocaleString()}`}</span></div><p class="text-[9px] text-gray-300 font-bold uppercase">${l.msg}</p></div></div>`).join('');
+            document.getElementById('levels-view').classList.add('active');
+        }
+
+        function hideLevels() {
+            playSound('click'); document.getElementById('levels-view').classList.remove('active');
+            document.getElementById(fromResult ? 'step-result' : 'step-0').classList.add('active');
+        }
+
+        function downloadImage() {
+            playSound('click');
+            const area = document.getElementById('result-capture-area');
+            html2canvas(area, { backgroundColor: '#030305', scale: 3, onclone: (doc) => {
+                const box = doc.getElementById('result-capture');
+                box.style.boxShadow = 'none'; box.style.margin = '0';
+            }}).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `impuesto-bicho-xidito.png`; link.href = canvas.toDataURL(); link.click();
+            });
+        }
+
+        function shareResult() {
+            const total = document.getElementById('final-amount').innerText;
+            const text = `¡Mi Impuesto Bicho fue de ${total} este mes! 💸 Calcúlalo en estudio.xidito.com`;
+            if (navigator.share) navigator.share({ title: 'Impuesto Bicho', text: text, url: 'https://estudio.xidito.com/' });
+            else {
+                const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select();
+                document.execCommand('copy'); document.body.removeChild(el);
+                const toast = document.getElementById('toast'); toast.style.opacity = '1';
+                setTimeout(() => toast.style.opacity = '0', 2500);
+            }
+        }
+
+        window.onload = () => { createFloatingEmojis(); renderQuestions(); };
+    </script>
+</body>
+</html>
