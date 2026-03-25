@@ -88,10 +88,9 @@
             width: 100vw;
             display: none;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* Cambiado de center para que los encabezados no se pierdan arriba */
             align-items: center;
-            padding: 1rem;
-            padding-bottom: 100px;
+            padding: 80px 1rem 120px 1rem; /* Aumento de padding superior para visibilidad de encabezados */
             overflow-y: auto;
             position: relative;
             background: radial-gradient(circle at center, rgba(0,0,0,0) 20%, rgba(0,0,0,0.8) 100%);
@@ -280,7 +279,7 @@
     </nav>
 
     <!-- INICIO -->
-    <main id="home" class="section-page active">
+    <main id="home" class="section-page active !justify-center">
         <div class="max-w-4xl text-center w-full">
             <div class="logo-container">
                 <div class="logo-glow"></div>
@@ -311,10 +310,10 @@
                 </div>
 
                 <div class="video-scroll-area">
-                    <!-- VIDEO NUEVO: CALCULADORA / IMPUESTO -->
+                    <!-- VIDEO NUEVO: ACTUALIZADO TÍTULO -->
                     <div class="video-card border-2 border-pink-500/50">
                         <div class="p-4 bg-pink-600/30 flex justify-between items-center">
-                            <span class="text-xs font-bold uppercase tracking-widest text-white">¡NUEVO: IMPUESTO BICHO!</span>
+                            <span class="text-xs font-bold uppercase tracking-widest text-white">La verdad sobre los Neurodivergentes y el Trabajo: Jefes, Máscaras y Renuncias</span>
                             <i class="fas fa-star text-yellow-400 animate-pulse"></i>
                         </div>
                         <div class="aspect-video w-full">
@@ -360,7 +359,7 @@
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- CALCULADORA (NUEVA) -->
+                <!-- CALCULADORA -->
                 <a href="https://clubdebichos.xidito.com/calculadorabicho.html" target="_blank" class="postit pi-yellow">
                     <i class="fas fa-calculator text-3xl mb-4"></i>
                     <h3 class="text-2xl font-bold mb-2">Calculadora de Impuesto Bicho</h3>
@@ -368,7 +367,7 @@
                     <span class="mt-4 text-[10px] font-black uppercase tracking-widest opacity-60">Abrir Herramienta →</span>
                 </a>
 
-                <!-- MAPEO (INTEGRADO) -->
+                <!-- MAPEO -->
                 <a href="https://clubdebichos.xidito.com/eresbicho.html" target="_blank" class="postit pi-green">
                     <i class="fas fa-dna text-3xl mb-4"></i>
                     <h3 class="text-2xl font-bold mb-2">Mapeo Neurodivergente</h3>
@@ -445,11 +444,10 @@
             
             target.scrollTop = 0;
             
-            // Efecto haptico simple
             if (window.navigator.vibrate) window.navigator.vibrate(5);
         }
 
-        // Analytics Tracking para clics en postits externos
+        // Analytics Tracking
         document.querySelectorAll('a.postit').forEach(link => {
             link.addEventListener('click', function() {
                 const title = this.querySelector('h3').innerText;
